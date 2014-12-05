@@ -32,6 +32,9 @@ import (
 // it is associated with.
 type TestSet struct {
 
+    //  unique ID of the TestSet, used for DB access
+    Id string   `bson:"_id, omitempty"`
+
 	// a test set name, of course; in XML, this is an attribute
 	Name string         `xml:"name,attr"`
 
@@ -200,5 +203,5 @@ func (ts *TestSet) Execute(display *ExecDisplayFnCback) {
 func CreateTestSet(name, descr string, sut *SysUnderTest,
 	                                   setup, cleanup *Action) *TestSet {
 	tcs := make([]*TestCase, 0)
-	return &TestSet{name, descr, "", sut, setup, cleanup, tcs}
+	return &TestSet{"", name, descr, "", sut, setup, cleanup, tcs}
 }

@@ -17,6 +17,9 @@ import (
 // A representation of the requirement.
 type Requirement struct {
 
+    //
+    Id string
+
     // name of the requirement
     Name string                 `xml:"name,attr"`
 
@@ -26,6 +29,9 @@ type Requirement struct {
 
     // Longer description of the requirement
     Description string
+
+    // Project
+    *Project
 
     // current status
     Status RequirementStatus    `xml:"status:attr"`
@@ -41,8 +47,8 @@ type Requirement struct {
 func (r *Requirement) String() string {
 
     s:= fmt.Sprintf("Requirement: %s [%s]\n", r.Name, r.Short)
-    s += fmt.Sprintf("Status: %s, Priority: %s\n",
-            r.Status, r.Priority.String())
+    s += fmt.Sprintf("Status: %s, Priority: %s\n", r.Status, r.Priority.String())
+    s += fmt.Sprintf("Project: %s\n", r.Project.String())
     s += fmt.Sprintf("\n%s\n", r.Description)
     for _, n := range r.Notes {
         s += fmt.Sprintf("%s", n.String())

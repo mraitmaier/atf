@@ -14,6 +14,7 @@
  *                  had to change XML schema and add an <Action> tag
  *                  into <TestStep>
  *  3   May14   MR  A refactoring and simplification of the collector code
+ *  4   Sep14   MR  More simplification of the collector code
  */
 
 package atf
@@ -35,31 +36,18 @@ type Collector interface {
 type JsonCollector string
 
 // Implementation of the collector interface.
-func (c *JsonCollector) Collect(pth string, ts *TestSet) error {
+func (c *JsonCollector) Collect(text string, ts *TestSet) error {
 
-	text, err := utils.ReadTextFile(pth)
-	if err != nil && err != io.EOF {
-		return err
-	}
-
-	err = json.Unmarshal([]uint8(text), ts)
-	return err
+	return json.Unmarshal([]uint8(text), ts)
 }
 
 // Defines the XML collector type.
 type XmlCollector string
 
 // Implementation of the collector interface.
-func (c *XmlCollector) Collect(pth string, ts *TestSet) error {
+func (c *XmlCollector) Collect(text string, ts *TestSet) error {
 
-	// read the XMl file
-	text, err := utils.ReadTextFile(pth)
-	if err != nil && err != io.EOF {
-		return err
-	}
-	// let's parse the XML ; 
-	err = xml.Unmarshal([]byte(text), ts)
-	return err
+	return xml.Unmarshal([]byte(text), ts)
 }
 
 // Defines the plain text collector type.
@@ -68,7 +56,7 @@ type TextCollector string
 // Implementation of the collector interface.
 func (c *TextCollector) Collect(pth string, ts *TestSet) error {
 
-	// FIXME: no implementation yet, returning empty pointer
+	// TODO: no implementation yet, returning empty pointer
 	return nil
 }
 
@@ -99,8 +87,14 @@ func Collect(pth string) (ts *TestSet) {
 		return nil
 	}
 
+    // read the text file
+	text, err := utils.ReadTextFile(pth)
+	if err != nil && err != io.EOF {
+		return nil
+	}
+
 	// now collect the test set structure and update flags for actions
-	c.Collect(pth, ts)
+	c.Collect(text, ts)
     ts.Initialize()
     // silently drop error: if 'ts' is 'nil', it is an error already...
 
