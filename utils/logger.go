@@ -30,6 +30,7 @@ type LogHandler interface {
     Start() error
 	Close()
     Send(Severity, string)
+    Clear() error
 }
 
 /************************** logHandler ***********************************/
@@ -63,6 +64,11 @@ func (l *logHandler) SetFormat(fmt string) { l.format = fmt }
 // Create a new log handler instance.
 func newLogHandler(fmt string, sev Severity) *logHandler {
 	return &logHandler{sev, fmt, nil, nil}
+}
+
+// Clear the log - empty implementation to satisfy the interface, only file logger needs this one...
+func (l *logHandler) Clear() error {
+    return l.Clear()
 }
 
 /************************** Log ***********************************/
@@ -199,11 +205,18 @@ func (l *Log) Close() {
 	}
 }
 
+// Clear the contents of the log: empty implementation to satisfy the interface, only FileHandler actually needs one...
+func (l *Log) Clear() {
+    for _, h := range l.Handlers {
+        h.Clear()
+    }
+}
+
 // Create new logger, specify the number of log handlers and create needed  
 // channels: the one onto which the log messages are sent and the other where
 // signal when to stop is sent.
 // Return the Log instance. 
-func NewLog() (*Log) {
+func NewLog() *Log {
     // create new Log instance
 	l := &Log{ make([]LogHandler, 0, 2) }
     return l
@@ -211,7 +224,6 @@ func NewLog() (*Log) {
 
 // Start logger handlers.
 func (l *Log) Start() error {
-
     var err error
     for _, h := range l.Handlers {
         if err = h.Start(); err != nil { return err }
@@ -233,6 +245,9 @@ type FileHandler struct {
 
     // file descriptor for the file log handler  
 	file *os.File
+
+    // filename
+    filename string
 }
 
 // Write a messages with given severity to a logfile.
@@ -255,8 +270,7 @@ func (f *FileHandler) Close() {
 }
 
 func (f *FileHandler) String() string {
-	return fmt.Sprintf("  FileHandler: fmt=%q, lvl=%-10s, fd=%d\n",
-		f.Format(), f.Severity(), f.file.Fd())
+	return fmt.Sprintf("  FileHandler: fmt=%q, lvl=%-10s, fd=%d\n", f.Format(), f.Severity(), f.file.Fd())
 }
 
 
@@ -265,6 +279,23 @@ func (f *FileHandler) Send(sev Severity, msg string) {
     if f.logHandler.msgch != nil {
         f.logHandler.msgch <- &logmsg{ sev, msg }
     }
+}
+
+// Clear the contents of the log file
+func (f *FileHandler) Clear() error {
+
+    var err error
+
+    f.Close() // we must close the file
+
+    if err = os.Remove(f.filename); err != nil {
+        return err
+    }
+	if f.file, err = os.OpenFile(f.filename, os.O_CREATE|os.O_RDWR|os.O_APPEND, 0755); err != nil {
+        return err
+    }
+    f.Start() // we must close the file
+    return err
 }
 
 // Run handler as a goroutine.
@@ -279,7 +310,6 @@ func (f *FileHandler) Start() error {
             select {
             // when message is received over channel, write it
             case m, ok :=<-f.logHandler.msgch:
-                //fmt.Printf("DEBUG, file logger: msg=%v\n", m) // DEBUG
                 if ok { f.write(m.sev, m.msg) }
 
             // when data is received over stop channel, just exit the goroutine
@@ -295,12 +325,11 @@ func (f *FileHandler) Start() error {
 }
 
 // Creates a new file handler.
-func NewFileHandler(filename string,
-	fmt string, sev Severity) (*FileHandler, error) {
-	// open log file
-	//f, err := os.OpenFile(filename, os.O_CREATE|os.O_WRONLY, 0755)
-	f, err := os.Create(filename)
-	return &FileHandler{ newLogHandler(fmt, sev), f }, err
+func NewFileHandler(filename string, fmt string, sev Severity) (*FileHandler, error) {
+	// open log file for append data
+	f, err := os.OpenFile(filename, os.O_CREATE|os.O_RDWR|os.O_APPEND, 0755)
+	//f, err := os.Create(filename)
+	return &FileHandler{ newLogHandler(fmt, sev), f, filename }, err
 }
 
 
@@ -366,10 +395,14 @@ func (s *StreamHandler) Start() error {
     return nil
 }
 
+// Clear the log - empty implementation to satisfy the interface, only file logger needs this one...
+func (s *StreamHandler) Clear() error {
+    return nil
+}
 
 // Creates a new stream handler
 func NewStreamHandler(fmt string, sev Severity) *StreamHandler {
-	return &StreamHandler{ newLogHandler(fmt, sev), os.Stdout }
+	return &StreamHandler{ newLogHandler(fmt, sev), os.Stdout, ""}
 }
 
 /************************** SyslogHandler ***********************************/
@@ -449,6 +482,10 @@ func (s *SyslogHandler) Start() error {
     return nil
 }
 
+// Clear the log - empty implementation to satisfy the interface, only file logger needs this one...
+func (s *SyslogHandler) Clear() error {
+    return nil
+}
 // Create a new sysloh handler.
 func NewSyslogHandler(ip, fmt string, sev Severity) *SyslogHandler {
     return &SyslogHandler{ newLogHandler(fmt, sev), ip, NewSyslogMsg() }
