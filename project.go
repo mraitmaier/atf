@@ -1,57 +1,53 @@
-// project.go
-
 package atf
 
+// project.go
+
 import (
-    "fmt"
-//    "strings"
-    "encoding/json"
-    "encoding/xml"
+	"fmt"
+	//    "strings"
+	"encoding/json"
+	"encoding/xml"
 )
 
+// Project define a single project
 type Project struct {
 
-    //
-    Name string
+	// Name is a name of the project
+	Name string
 
-    //
-    Short string
+	// Short is a short name for a project
+	Short string
 
-    //
-    Description string
-
+	// Description is a detailed description of the project
+	Description string
 }
 
-// Create a new instance of Project, name is given and short name (abbrviation) is needed.
-func NewProject(name, short string) *Project {
-    return &Project{ name, short, "" }
-}
+// NewProject creates a new instance of Project, name is given and short name (abbreviation) is needed.
+func NewProject(name, short string) *Project { return &Project{name, short, ""} }
 
-// Create a new instance of Project, all data is given.
-func CreateProject(name, short, descr string) *Project {
-    return &Project{ name, short, descr }
-}
+// CreateProject creates a new instance of Project, all data must be given.
+func CreateProject(name, short, descr string) *Project { return &Project{name, short, descr} }
 
-// Returns a string representation of the Project instance
+// String returns a human-readable representation of the Project instance
 func (p *Project) String() string {
-    return fmt.Sprintf("%s (%s)", p.Name, p.Short)
+	return fmt.Sprintf("%s (%s)", p.Name, p.Short)
 }
 
-// Returns an XML-encoded representation of the Project instance
-func (p *Project) Xml() (string, error) {
+// XML returns an XML-encoded representation of the Project instance
+func (p *Project) XML() (string, error) {
 
-    out, err := xml.MarshalIndent(p, "  ", "    ")
-    if err != nil {
-        return "", err
-    }
-    return string(out), err
+	out, err := xml.MarshalIndent(p, "  ", "    ")
+	if err != nil {
+		return "", err
+	}
+	return string(out), err
 }
 
-// Returns a JSON-encoded representation of the Project instance
-func (p *Project) Json() (string, error) {
-    b, err := json.Marshal(p)
-    if err != nil {
-        return "", err
-    }
-    return string(b[:]), err
+// JSON returns a JSON-encoded representation of the Project instance
+func (p *Project) JSON() (string, error) {
+	b, err := json.Marshal(p)
+	if err != nil {
+		return "", err
+	}
+	return string(b[:]), err
 }

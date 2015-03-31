@@ -1,10 +1,12 @@
+package atf
+
 /*
  * collect.go - implementation of the collector module
  *
  * Collector is a module that collects the configuration (from configuration
- * file) and builds the type hierarchy (that is: scripts) to be executed. 
- * The configuration can be encoded as JSON or XML or plain text (that one is 
- * not implemented yet and frankly I'm not sure that is actually needed; so it 
+ * file) and builds the type hierarchy (that is: scripts) to be executed.
+ * The configuration can be encoded as JSON or XML or plain text (that one is
+ * not implemented yet and frankly I'm not sure that is actually needed; so it
  * might be omitted in the end...)
  *
  * History:
@@ -17,52 +19,44 @@
  *  4   Sep14   MR  More simplification of the collector code
  */
 
-package atf
-
 import (
-	"io"
-	"path"
+	"bitbucket.org/miranr/goatf/atf/utils"
 	"encoding/json"
 	"encoding/xml"
-	"bitbucket.org/miranr/goatf/atf/utils"
+	"io"
+	"path"
 )
 
-// Defines the types that implement Collect() method.
+// Collector defines the types that implement Collect() method.
 type Collector interface {
 	Collect(pth string, ts *TestSet) error
 }
 
-// Defines the JSON collector type.
-type JsonCollector string
+// JSONCollector defines the JSON collector type.
+type JSONCollector string
 
-// Implementation of the collector interface.
-func (c *JsonCollector) Collect(text string, ts *TestSet) error {
-
+// Collect implements the Collector interface.
+func (c *JSONCollector) Collect(text string, ts *TestSet) error {
 	return json.Unmarshal([]uint8(text), ts)
 }
 
-// Defines the XML collector type.
-type XmlCollector string
+// XMLCollector defines the XML collector type.
+type XMLCollector string
 
-// Implementation of the collector interface.
-func (c *XmlCollector) Collect(text string, ts *TestSet) error {
+// Collect implements the Collector interface.
+func (c *XMLCollector) Collect(text string, ts *TestSet) error { return xml.Unmarshal([]byte(text), ts) }
 
-	return xml.Unmarshal([]byte(text), ts)
-}
-
-// Defines the plain text collector type.
+// TextCollector defines the plain text collector type.
 type TextCollector string
 
-// Implementation of the collector interface.
+// Collect implements the Collector interface.
 func (c *TextCollector) Collect(pth string, ts *TestSet) error {
-
 	// TODO: no implementation yet, returning empty pointer
 	return nil
 }
 
-// Public factory function that resolves the right collector type and reads the
-// config. The final result is the valid TestSet structure, ready to be
-// executed.
+// Collect is a public factory function that resolves the right collector type and reads the config. The final result is the
+// valid TestSet structure, ready to be executed.
 func Collect(pth string) (ts *TestSet) {
 
 	// let's create empty TestSet
@@ -71,23 +65,19 @@ func Collect(pth string) (ts *TestSet) {
 	// we need one of the Collectors to get test set data
 	var c Collector
 
-	// determine the type of config file and unmarshal the data into TestSet 
+	// determine the type of config file and unmarshal the data into TestSet
 	switch path.Ext(pth) {
-
 	case ".json":
-		c = new(JsonCollector)
-
+		c = new(JSONCollector)
 	case ".txt", ".cfg":
 		c = new(TextCollector)
-
 	case ".xml":
-		c = new(XmlCollector)
-
-    default:
+		c = new(XMLCollector)
+	default:
 		return nil
 	}
 
-    // read the text file
+	// read the text file
 	text, err := utils.ReadTextFile(pth)
 	if err != nil && err != io.EOF {
 		return nil
@@ -95,8 +85,8 @@ func Collect(pth string) (ts *TestSet) {
 
 	// now collect the test set structure and update flags for actions
 	c.Collect(text, ts)
-    ts.Initialize()
-    // silently drop error: if 'ts' is 'nil', it is an error already...
+	ts.Initialize()
+	// silently drop error: if 'ts' is 'nil', it is an error already...
 
 	return
 }

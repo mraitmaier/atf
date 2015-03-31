@@ -1,31 +1,36 @@
+package atf
+
 /*
  * atferror.go
  */
 
-package atf
-
-// An enum defining custom error values
-type AtfError int
+// Error is an enum defining custom error values
+type Error int
 
 const (
-	_ AtfError = iota // zero value should be empty
-	ATFError_Unknown
-	ATFError_Invalid_Value // substitute for EINVAL
-	ATFError_Unknown_Report_Type
-	ATFError_Invalid_Test_Result
+	// zero value should be empty
+	_ Error = iota
+	// ErrorUnknown represents the unknown error
+	ErrorUnknown
+	// ErrorInvalidValue is a substitute for EINVAL
+	ErrorInvalidValue
+	// ErrorUnknownReportType is FIXME
+	ErrorUnknownReportType
+	// ErrorInvalidTestResult is FIXME
+	ErrorInvalidTestResult
 )
 
-// implementing the 'error' interface
-func (e AtfError) Error() string {
+// Error implements the 'error' interface
+func (e Error) Error() string {
 	msg := "Unknown error"
 	switch e {
-	case ATFError_Unknown:
+	case ErrorUnknown:
 		msg = "Unknown Error"
-	case ATFError_Invalid_Value:
+	case ErrorInvalidValue:
 		msg = "Invalid value"
-	case ATFError_Unknown_Report_Type:
+	case ErrorUnknownReportType:
 		msg = "Unknown report type"
-	case ATFError_Invalid_Test_Result:
+	case ErrorInvalidTestResult:
 		msg = "Invalid test result value"
 	}
 	return msg

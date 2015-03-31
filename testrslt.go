@@ -1,22 +1,22 @@
+package atf
+
 /*
  * testrslt.go - implementation of the TestResult type
  *
- * This type defines the valid test results (pass/fail/xfail...) and valid 
+ * This type defines the valid test results (pass/fail/xfail...) and valid
  * operations on them.
  */
 
-package atf
-
 import (
-    "encoding/xml"
+	"encoding/xml"
 )
 
-// A slice of valid test result (string) values
-var ValidTestResults = []string{"UnknownResult", "Pass", "Fail",
-	"XFail", "NotTested"}
+// ValidTestResults is a slice of valid test result (string) values
+var ValidTestResults = []string{"UnknownResult", "Pass", "Fail", "XFail", "NotTested"}
 
-// Checks the validity of the test result value.
+// IsValidTestResult checks for the validity of the given test result value.
 func IsValidTestResult(val string) bool {
+
 	status := false
 	for _, v := range ValidTestResults {
 		if v == val {
@@ -27,10 +27,11 @@ func IsValidTestResult(val string) bool {
 	return status
 }
 
-// Custom type for handling test results.
+// TestResult is a custom type for handling test results.
 type TestResult string
 
-func (tr *TestResult) Xml() (x string, err error) {
+// XML returns an XML-encoded representation of the TestResult
+func (tr *TestResult) XML() (x string, err error) {
 
 	x = ""
 	b, err := xml.MarshalIndent(tr, "", "  ")
@@ -39,4 +40,3 @@ func (tr *TestResult) Xml() (x string, err error) {
 	}
 	return string(b[:]), nil
 }
-

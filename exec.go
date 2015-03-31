@@ -1,5 +1,7 @@
+package atf
+
 /*
- * exec.go - a file implementing a simple script/program executor 
+ * exec.go - a file implementing a simple script/program executor
  *
  * The executor means that it is capable of executing different types of
  * scripts, including native programs and java jars.
@@ -11,10 +13,9 @@
  * should not too difficult to fulfill since this a convenience.
  *
  * History:
- * 0.1  Apr10   MR  The first working version with limited testing 
+ * 0.1  Apr10   MR  The first working version with limited testing
  * 0.2  Mar12   MR  type ExecDisplayFnCback defined
  */
-package atf
 
 import (
 	"os/exec"
@@ -23,15 +24,12 @@ import (
 	"runtime"
 )
 
-/*
- * ExecDisplayFnCback -  This type is an alias for a closure that is used as a
- * parameter of Execute() method of the Executor interface (see below). It as
- * a callback function that mimics fmt.Printxy() functions to comment how the 
- * execution is proceeding; therefore more or less a log function.
- */
+// ExecDisplayFnCback is an alias for a closure that is used as a parameter of Execute() method of the Executor interface
+// (see below). It as a callback function that mimics fmt.Printxy() functions to comment how the execution is proceeding;
+// therefore more or less a log function.
 type ExecDisplayFnCback func(...string)
 
-// Executor interface defining the Execute() method
+// Executor interface defin the Execute() method
 type Executor interface {
 	Execute(ExecDisplayFnCback) string
 }
@@ -47,22 +45,45 @@ const (
 	groovyExec = "groovy"
 )
 
-// Define some executable types as enum
+// ScriptType defines some executable types as enum
 type ScriptType int
+
 const (
+	// UnknownScript represents a script of unknown type
 	UnknownScript ScriptType = iota
+
+	// PythonScript represents a python script
 	PythonScript
+
+	// PerlScript represents a perl script
 	PerlScript
+
+	// TclScript represents a Tcl script
 	TclScript
-	IxiaTclScript
+
+	// IxiaTclScript represents a Tcl script specialized for Ixia machinery
+	//IxiaTclScript
+
+	// ExpectScript represents an Expect (Tcl) script
 	ExpectScript
+
+	// NativeExecutable represents a native executable program
 	NativeExecutable
+
+	// JavaExecutable represents a Java executable program (JAR)
 	JavaExecutable
+
+	// RubyScript represents a ruby script
 	RubyScript
+
+	// GroovyScript represents a groovy script
 	GroovyScript
+
+	// LuaScript represents a Lua script
+	LuaScript
 )
 
-// Formats the output text from script/program.
+// FmtOutput formats the output text from script/program.
 func FmtOutput(o string) string {
 	s := "Displaying output:\n################### OUTPUT ##################\n"
 	s += o
@@ -70,27 +91,25 @@ func FmtOutput(o string) string {
 	return s
 }
 
-// Private function that actually executes the given script/program
-// and returns the output and/or error code.
+// Function execute is a private function that actually executes the given script/program and returns the output and/or error code.
 //
 // Input:
 //       exe - an interpreter for given script or program to be executed
-//      args - arguments to the interpreter as slice of string; the script 
+//      args - arguments to the interpreter as slice of string; the script
 //          name is always included, of course. Any additional argument are to
 //          be a part of this slice.
 //
-// eturns:
+// Returns:
 //      output - is the text output from the executed script/program
 //         err - error code; if everything is OK, it should be nil
 func execute(exe string, args []string) (output string, err error) {
 
-
 	output = ""
-    // simple error check
+	// simple error check
 	if len(exe) < 1 {
-		err = ATFError_Invalid_Value
-        return
-    }
+		err = ErrorInvalidValue
+		return
+	}
 
 	// prepare data for execution
 	cmd := exec.Command(exe, args...)
@@ -98,17 +117,17 @@ func execute(exe string, args []string) (output string, err error) {
 		return
 	}
 
-    // run the command and wait for output text from STDIN and STDERR combined
+	// run the command and wait for output text from STDIN and STDERR combined
 	var out []byte
 	out, err = cmd.CombinedOutput()
 	output = string(out)
 	return
 }
 
-// A private function that prepares arguments for executing the JARs.   
+// A private function that prepares arguments for executing the JARs.
 //
 // Input:
-//      jar  - a java JAR to be run 
+//      jar  - a java JAR to be run
 //      args - additional arguments for the JAR as a slice of strings
 //
 // Returns:
@@ -127,14 +146,13 @@ func executeJava(jar string, args []string) (out string, err error) {
 	return out, err
 }
 
-// A private function that prepares arguments for executing the various scripts
-// Script interpretter must be in PATH.
+// A private function that prepares arguments for executing the various scripts Script interpretter must be in PATH.
 //
 // Input:
 //      exe - an executable that'll run the script (interpreter)
-//      script  - a python script to be run 
+//      script  - a python script to be run
 //      args - additional arguments for the script as a slice of strings
-// 
+//
 // Returns:
 //      out - is the text output from the executed script/program
 //      err - error code; if everything is OK, it should be nil
@@ -152,10 +170,9 @@ func executeScript(exe string, script string, args []string) (out string, err er
 	return out, err
 }
 
-// A private function that determines the type of script to be executed. This 
-// is done by examining the file extension. If extension is not found (is empty
-// string), the file is considered a native executable (true for POSIX OSes).
-// 
+// A private function that determines the type of script to be executed. This is done by examining the file extension. If
+// extension is not found (is empty string), the file is considered a native executable (true for POSIX OSes).
+//
 // Input:
 //      scr  - a file whose type is to be determined
 //
@@ -187,19 +204,22 @@ func determineType(scr string) ScriptType {
 	return t
 }
 
-// Executes the given script/program and returns the text output of the command
-// (STDOUT & STDERR) and error code if something goes wrong.
-// 
+// Execute executes the given script/program and returns the text output of the command (STDOUT & STDERR) and error code
+// if something goes wrong.
+//
 // Input:
-//      script - a python script to be run 
+//      script - a python script to be run
 //        args - additional arguments for the script as a slice of strings
-// 
+//
 // Returns:
 //      output - is the text output from the executed script/program
 //         err - error code; if everything is OK, it should be nil
 func Execute(script string, args []string) (output string, err error) {
+
 	var scrtype ScriptType
+
 	scrtype = determineType(script)
+
 	switch scrtype {
 	case PythonScript:
 		output, err = executeScript(pyExec, script, args)
@@ -225,7 +245,7 @@ func Execute(script string, args []string) (output string, err error) {
 		output, err = executeScript(groovyExec, script, args)
 	default:
 		output = "XXX: Invalid output"
-		err = ATFError_Invalid_Value
+		err = ErrorInvalidValue
 	}
 	return output, err
 }

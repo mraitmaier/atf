@@ -1,106 +1,94 @@
-// 
+package atf
+
+//
 //
 // History:
 // 1    Jun14   MR  Initial version, limited testing
 //
 
-
-package atf
-
 import (
-    "fmt"
-    "strings"
-    "encoding/xml"
-    "encoding/json"
+	"encoding/json"
+	"encoding/xml"
+	"fmt"
+	"strings"
 )
 
-// A representation of the requirement.
+// Requirement represents a single requirement.
 type Requirement struct {
 
-    //
-    Id string
+	// Name represents the name of the requirement
+	Name string `xml:"name,attr"`
 
-    // name of the requirement
-    Name string                 `xml:"name,attr"`
+	// Short represents a short name of the requirement, usually a code of some sort or abbreviation
+	Short string
 
-    // short name of the requirement, usually a code of some sort or
-    // abbreviation
-    Short string
+	// Description is a detailed description of the requirement
+	Description string
 
-    // Longer description of the requirement
-    Description string
+	// Project represents a project that is related to the requirement
+	*Project
 
-    // Project
-    *Project
+	// Status represents the current status
+	Status RequirementStatus `xml:"status:attr"`
 
-    // current status
-    Status RequirementStatus    `xml:"status:attr"`
+	// Priority represents the priority (low, normal, high) of the requirement
+	Priority Priority `xml:"priority,attr"`
 
-    // priority (low, normal, high)
-    Priority Priority           `xml:"priority,attr"`
-
-    // A list of notes representing the changelog
-    Notes []*Note               `xml:"Notes>Note"`
+	// Notes represents a list of notes o for the requirement (the changelog)
+	Notes []*Note `xml:"Notes>Note"`
 }
 
-// Returns a string representation of the requirement.
+// String returns a human-readable representation of the requirement.
 func (r *Requirement) String() string {
 
-    s:= fmt.Sprintf("Requirement: %s [%s]\n", r.Name, r.Short)
-    s += fmt.Sprintf("Status: %s, Priority: %s\n", r.Status, r.Priority.String())
-    s += fmt.Sprintf("Project: %s\n", r.Project.String())
-    s += fmt.Sprintf("\n%s\n", r.Description)
-    for _, n := range r.Notes {
-        s += fmt.Sprintf("%s", n.String())
-    }
-    return s
+	s := fmt.Sprintf("Requirement: %s [%s]\n", r.Name, r.Short)
+	s += fmt.Sprintf("Status: %s, Priority: %s\n", r.Status, r.Priority.String())
+	s += fmt.Sprintf("Project: %s\n", r.Project.String())
+	s += fmt.Sprintf("\n%s\n", r.Description)
+	for _, n := range r.Notes {
+		s += fmt.Sprintf("%s", n.String())
+	}
+	return s
 }
 
-// Returns an XML-encoded representation of the requirement.
-func (r *Requirement) Xml() (string, error) {
+// XML returns an XML-encoded representation of the requirement.
+func (r *Requirement) XML() (string, error) {
 
-    output, err := xml.MarshalIndent(r, "", "  ")
-    if err != nil {
-        return "", err
-    }
-    return string(output), nil
-
-}
-
-// Returns a JSON-encoded representation of the requirement.
-func (r *Requirement) Json() (string, error) {
-
-    output, err := json.Marshal(r)
-    if err != nil {
-        return "", err
-    }
-    return string(output), nil
+	output, err := xml.MarshalIndent(r, "", "  ")
+	if err != nil {
+		return "", err
+	}
+	return string(output), nil
 
 }
 
+// JSON returns a JSON-encoded representation of the requirement.
+func (r *Requirement) JSON() (string, error) {
 
+	output, err := json.Marshal(r)
+	if err != nil {
+		return "", err
+	}
+	return string(output), nil
 
+}
 
-// Custom requirement status type: it's basically a string but with limited set
-// of values.
+// RequirementStatus defines the custom requirement status type: it's basically a string but with limited set of values.
 type RequirementStatus string
 
-// The list of valid requirement statuses.
-var ValidRequirementStatus = []string{"NEW", "ACKNOWLEDGED", "PENDING",
-                                      "APPROVED", "REJECTED", "UNKNOWN" }
+// ValidRequirementStatus is the list of valid requirement statuses.
+var ValidRequirementStatus = []string{"NEW", "ACKNOWLEDGED", "PENDING", "APPROVED", "REJECTED", "UNKNOWN"}
 
-// Custom string representation for the RequirementStatus type.
-func (r RequirementStatus) String() string {
-    return strings.ToUpper(string(r))
-}
+// String returns a human-readable representation for the RequirementStatus type.
+func (r RequirementStatus) String() string { return strings.ToUpper(string(r)) }
 
-// Check whether the given requirement status is valid.
+// IsValidRequirementStatus checks whether the given requirement status is valid or not.
 func IsValidRequirementStatus(s RequirementStatus) bool {
 
-    for _, status := range ValidRequirementStatus {
-        if strings.ToUpper(string(s)) == status {
-            return true
-        }
-    }
-    return false
+	for _, status := range ValidRequirementStatus {
+		if strings.ToUpper(string(s)) == status {
+			return true
+		}
+	}
+	return false
 }
