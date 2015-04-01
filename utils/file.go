@@ -1,11 +1,10 @@
+package utils
 /*
- * file.go -  misc utility functions for working with files 
+ * file.go -  misc utility functions for working with files
  *
  * History:
  *  1   Jul11   MR  The initial version
  */
-
-package utils
 
 import (
 	"bufio"
@@ -15,10 +14,9 @@ import (
 	"strings"
 )
 
-/*
- * LoadFile - read a file with 'filename' and return the contents as a string
- */
+// LoadFile reads a file with 'filename' and returns the contents as a string.
 func LoadFile(path string) (text string, err error) {
+
 	text = ""
 	// open the file as read-only
 	file, err := os.Open(path)
@@ -38,13 +36,10 @@ func LoadFile(path string) (text string, err error) {
 	return
 }
 
-/*
- * ReadTextFile - read a text file and return the contents as a string 
- *
- * If an error occurs during file read, we return an empty string (and 
- * an os.Error, of course).
- */
+// ReadTextFile reads a text file and return the contents as a string.
+// If an error occurs during file read, we return an empty string (and an os.Error, of course).
 func ReadTextFile(filename string) (string, error) {
+
 	data, err := ioutil.ReadFile(filename)
 	if err != nil {
 		return "", err
@@ -52,17 +47,13 @@ func ReadTextFile(filename string) (string, error) {
 	return string(data), err
 }
 
-/*
- * ReadLines - read a text file and return a list of lines 
- *
- * If an error occurs during file read, we return only a list with single empty
- * string (and an os.Error, of course).
- */
+// ReadLines reads a text file and return a list of lines.
+// If an error occurs during file read, we return only a list with single empty string (and an os.Error, of course).
 func ReadLines(filename string) (lines []string, err error) {
+
 	// we read a file
 	data, err := ioutil.ReadFile(filename)
-	// if there's an error reading a file, we return a list with single empty
-	// string and error
+	// if there's an error reading a file, we return a list with single empty string and error
 	if err != nil {
 		return []string{""}, err
 	}
@@ -71,11 +62,9 @@ func ReadLines(filename string) (lines []string, err error) {
 	return
 }
 
-/*
- * WriteTextFile - write a text file with given path
- *
- */
+// WriteTextFile writes a text file with given path.
 func WriteTextFile(path string, contents string) (err error) {
+
 	f, err := os.Create(path)
 	if err != nil {
 		return
@@ -89,11 +78,9 @@ func WriteTextFile(path string, contents string) (err error) {
 	return
 }
 
-/*
- * CopyFile - copy a file from source 'src' to destination (dst)
- *
- */
+// CopyFile copies a file from source 'src' to destination (dst).
 func CopyFile(dst, src string) (int64, error) {
+
 	sf, err := os.Open(src)
 	if err != nil {
 		return 0, err
@@ -109,22 +96,23 @@ func CopyFile(dst, src string) (int64, error) {
 	return io.Copy(df, sf)
 }
 
-/* Reports whether the named file or directory exists. */
+// FileExists checks if the named file or directory exists.
 func FileExists(name string) bool {
-    if _, err := os.Stat(name); err != nil {
-        if os.IsNotExist(err) {
-            return false
-        }
-    }
-    return true
+
+	if _, err := os.Stat(name); err != nil {
+		if os.IsNotExist(err) {
+			return false
+		}
+	}
+	return true
 }
 
-// Reports whether d is a directory.
+// IsDir reports whether d is a directory or not.
 func IsDir(d string) (status bool) {
-    if fi, err := os.Stat(d); err == nil {
-        if fi.IsDir() {
-            status = true
-        }
-    }
-    return
+	if fi, err := os.Stat(d); err == nil {
+		if fi.IsDir() {
+			status = true
+		}
+	}
+	return
 }

@@ -1,16 +1,15 @@
-
 package utils
 
 import (
 	"errors"
 	"fmt"
 	"net"
+	"strings"
 	"time"
-    "strings"
 )
 
+// Severity defines the syslog severity
 type Severity int
-
 const (
 	Emergency Severity = iota
 	Alert
@@ -20,9 +19,10 @@ const (
 	Notice
 	Informational
 	Debug
-    UnknownSeverity
+	UnknownSeverity
 )
 
+// String returns a human-readable representation of the Severity value.
 func (s Severity) String() string {
 	switch s {
 	case Emergency:
@@ -41,40 +41,37 @@ func (s Severity) String() string {
 		return "INFO"
 	case Debug:
 		return "DEBUG"
-	default:
-		panic(errors.New("syslog: Invalid Severity values"))
 	}
-	return ""
+	panic(errors.New("syslog: Invalid Severity values"))
 }
 
-// Converts log level given as string into proper Severity value.
+// SeverityFromString converts log level given as string into proper Severity value.
 // If invalid string is given, function returns 'UnknownSeverity' value.
 func SeverityFromString(lvl string) Severity {
-    loglvl := UnknownSeverity
-    switch strings.ToUpper(lvl) {
-    case "EMERGENCY":
-        loglvl = Emergency
-    case "ALERT":
-        loglvl = Alert
-    case "CRITICAL":
-        loglvl = Critical
-    case "ERROR":
-        loglvl = Error
-    case "WARNING":
-        loglvl = Warning
-    case "NOTICE":
-        loglvl = Notice
-    case "INFO":
-        loglvl = Informational
-    case "DEBUG":
-        loglvl = Debug
-    }
-    return loglvl
+	loglvl := UnknownSeverity
+	switch strings.ToUpper(lvl) {
+	case "EMERGENCY":
+		loglvl = Emergency
+	case "ALERT":
+		loglvl = Alert
+	case "CRITICAL":
+		loglvl = Critical
+	case "ERROR":
+		loglvl = Error
+	case "WARNING":
+		loglvl = Warning
+	case "NOTICE":
+		loglvl = Notice
+	case "INFO":
+		loglvl = Informational
+	case "DEBUG":
+		loglvl = Debug
+	}
+	return loglvl
 }
 
-//
+// Facility defines the syslog facility
 type Facility int
-
 const (
 	FacKernel Facility = iota
 	FacUser
@@ -103,15 +100,13 @@ const (
 )
 
 const (
-	// Define a standard syslog message timestamp format
+	// TimestampFmt defines a standard syslog message timestamp format
 	TimestampFmt = "Jan _2 15:04:05"
-	// Standard UDP port for syslog is 514
+	// SyslogPort defines the standard UDP port for syslog (514)
 	SyslogPort = 514
 )
 
-/*
- * SyslogMsg 
- */
+// SyslogMsg defines a syslog message type.
 type SyslogMsg struct {
 	Sev                 Severity
 	Fac                 Facility
@@ -119,18 +114,21 @@ type SyslogMsg struct {
 	Msg                 string
 }
 
+// Priority returns a value of syslog priority.
 func (s *SyslogMsg) Priority() string {
 	pri := int(s.Sev) + (8 * int(s.Fac))
 	return fmt.Sprintf("<%d>", pri)
 }
 
+// TimeStamp returns a syslog message timestamp.
 func (s *SyslogMsg) TimeStamp() string { return s.timestamp }
 
-func (s *SyslogMsg) SetTimestamp(stamp time.Time) {
-	s.timestamp = stamp.Format(TimestampFmt)
-}
+// SetTimestamp sets a new timestamp for the syslog message.
+func (s *SyslogMsg) SetTimestamp(stamp time.Time) { s.timestamp = stamp.Format(TimestampFmt) }
 
+// SSetTimestamp sets a new timestamp for the syslog message (timestamp is given as a string value).
 func (s *SyslogMsg) SSetTimestamp(stamp string) error {
+
 	t, err := time.Parse(TimestampFmt, stamp)
 	if err != nil {
 		return err
@@ -139,18 +137,19 @@ func (s *SyslogMsg) SSetTimestamp(stamp string) error {
 	return nil
 }
 
-func (s *SyslogMsg) Get() string {
-	format := "%s%s %s %s"
-	return fmt.Sprintf(format, s.Priority(), s.timestamp, s.Hostname, s.Msg)
-}
+// Get returns the properly formatted syslog message.
+func (s *SyslogMsg) Get() string { return fmt.Sprintf("%s%s %s %s", s.Priority(), s.timestamp, s.Hostname, s.Msg) }
 
+// Send sends the syslog message to given IP address.
 func (s *SyslogMsg) Send(ip string) error {
-	var addr net.IP
+
+	//var addr net.IP
 	// local IP address overrides the Hostname field
 	if ip != "" {
 		s.Hostname = ip
 	}
-	addr = net.ParseIP(s.Hostname)
+	addr := net.ParseIP(s.Hostname)
+
 	// let's make an UDP connection and send the message
 	conn, err := net.DialUDP("udp", nil, &net.UDPAddr{addr, SyslogPort, ""})
 	if err != nil {
@@ -161,9 +160,5 @@ func (s *SyslogMsg) Send(ip string) error {
 	return nil
 }
 
-/*
- * NewSyslogMsg - create new syslog message with default fields
- */
-func NewSyslogMsg() *SyslogMsg {
-	return &SyslogMsg{Informational, FacLocal0, "", "", ""}
-}
+// NewSyslogMsg creates new syslog message with default fields.
+func NewSyslogMsg() *SyslogMsg { return &SyslogMsg{Informational, FacLocal0, "", "", ""} }
