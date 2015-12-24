@@ -18,7 +18,7 @@ import (
 	"path"
 	"path/filepath"
 	//    "fmt"
-	"bitbucket.org/miranr/goatf/atf/utils"
+	"github.com/mraitmaier/atf/utils"
 )
 
 // Reporter defines the interface for different report generators.

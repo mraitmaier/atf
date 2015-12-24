@@ -10,7 +10,7 @@ package atf
  */
 
 import (
-	"bitbucket.org/miranr/goatf/atf/utils"
+	"github.com/mraitmaier/atf/utils"
 	"encoding/json"
 	"encoding/xml"
 	"fmt"
