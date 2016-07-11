@@ -18,7 +18,7 @@ package atf
  */
 
 import (
-	"github.com/mraitmaier/atf/utils"
+	//"github.com/mraitmaier/atf/utils"
 	"encoding/json"
 	"encoding/xml"
 	"fmt"
@@ -31,7 +31,7 @@ import (
 type TestSet struct {
 
 	//  ID is a unique ID of the TestSet, used for DB access
-	ID string `bson:"_id, omitempty"`
+	//ID string `bson:"_id, omitempty"`
 
 	// Name is a test set name, of course; in XML, this is an attribute
 	Name string `xml:"name,attr"`
@@ -40,7 +40,7 @@ type TestSet struct {
 	Description string
 
 	// TestPlan: test set is a subset of test plan; we remember its name
-	TestPlan string
+	//TestPlan string
 
 	// Sut is a system under test description
 	Sut *SysUnderTest `xml:"SystemUnderTest"`
@@ -55,6 +55,7 @@ type TestSet struct {
 	Cases []*TestCase `xml:"Cases>TestCase"`
 }
 
+/*
 // ToTestPlan converts a TestSet instance into TestPlan instance.
 // Note that we force deep copy of the data. Also, SUT instance is not contained by TestPlan, so it must be omitted.
 func (ts *TestSet) ToTestPlan() *TestPlan {
@@ -69,6 +70,7 @@ func (ts *TestSet) ToTestPlan() *TestPlan {
 	}
 	return tp
 }
+*/
 
 // Initialize initializes a new TestSet.
 func (ts *TestSet) Initialize() {
@@ -90,7 +92,7 @@ func (ts *TestSet) Initialize() {
 func (ts *TestSet) String() string {
 
 	s := fmt.Sprintf("TestSet: %q", ts.Name)
-	s += fmt.Sprintf(" is owned by %q test plan.\n", ts.TestPlan)
+	//s += fmt.Sprintf(" is owned by %q test plan.\n", ts.TestPlan)
 	s += fmt.Sprintf("  Description:\n%q\n", ts.Description)
 	if ts.Sut != nil {
 		s += fmt.Sprintf("  SUT:\n%s\n\n", ts.Sut.String())
@@ -201,5 +203,5 @@ func (ts *TestSet) Execute(display *ExecDisplayFnCback) {
 // CreateTestSet creates a new instance of the TestSet type with given data.
 func CreateTestSet(name, descr string, sut *SysUnderTest, setup, cleanup *Action) *TestSet {
 	var tcs []*TestCase
-	return &TestSet{"", name, descr, "", sut, setup, cleanup, tcs}
+	return &TestSet{name, descr, sut, setup, cleanup, tcs}
 }

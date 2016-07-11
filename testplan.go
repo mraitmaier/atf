@@ -64,7 +64,7 @@ func (tp *TestPlan) ToTestSet() *TestSet {
 	ts := new(TestSet)
 	ts.Name = utils.CopyS(tp.Name) // TestSet name can (and should) be changed
 	ts.Description = utils.CopyS(tp.Description)
-	ts.TestPlan = utils.CopyS(tp.Name)
+	//ts.TestPlan = utils.CopyS(tp.Name)
 	*ts.Setup = *tp.Setup
 	*ts.Cleanup = *tp.Cleanup
 	ts.Sut = new(SysUnderTest) // return empty instance
