@@ -14,8 +14,7 @@ package atf
  *  2   Mar12 MR heavy refactoring: changed the Execute() method to work with
  *                 registered closure; xml.Unmarshal() parsing definitions;
  *  3   Mar12 MR case evaluation fixed
- *  4   May14 MR Improved and siplified version: XML handling simplified,
- *               appending steps simplified.
+ *  4   May14 MR Improved and siplified version: XML handling simplified, appending steps simplified.
  */
 
 import (
@@ -70,7 +69,7 @@ func (tc *TestCase) String() string {
 			s += fmt.Sprintf("%s\n", step.String())
 		}
 	} else {
-		s += fmt.Sprintln("\tActions: empty\n")
+		s += fmt.Sprintln("\tActions: empty")
 	}
 	return s
 }
@@ -155,7 +154,7 @@ func (tc *TestCase) Execute(display *ExecDisplayFnCback) {
 			disp("error", tc.cleanupAfterCaseSetupFail())
 		}
 	} else {
-		disp("notice", fmt.Sprintln("Setup action is not defined.\n"))
+		disp("notice", fmt.Sprintln("Setup action is not defined."))
 	}
 
 	// now we execute the steps...
@@ -173,7 +172,7 @@ func (tc *TestCase) Execute(display *ExecDisplayFnCback) {
 			disp("info", FmtOutput(tc.Setup.Execute()))
 		}
 	} else {
-		disp("notice", fmt.Sprintln("Cleanup action is not defined.\n"))
+		disp("notice", fmt.Sprintln("Cleanup action is not defined."))
 	}
 	// now we evaluate the complete test case
 	tc.evaluate()

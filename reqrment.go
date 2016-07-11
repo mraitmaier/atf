@@ -76,7 +76,7 @@ var ValidReqStatus = []string{"NEW", "ACKNOWLEDGED", "PENDING", "APPROVED", "REJ
 // String returns a human-readable representation for the ReqStatus type.
 func (r ReqStatus) String() string { return strings.ToUpper(string(r)) }
 
-// IsValidRequirementStatus checks whether the given requirement status is valid or not.
+// IsValidReqStatus checks whether the given requirement status is valid or not.
 func IsValidReqStatus(s ReqStatus) bool {
 
 	for _, status := range ValidReqStatus {

@@ -78,7 +78,7 @@ func (a *Action) Init() {
 }
 
 // XML returns an XML-encoded representation of the Action.
-func (a *Action) Xml() (string, error) {
+func (a *Action) XML() (string, error) {
 
 	output, err := xml.MarshalIndent(a, "  ", "    ")
 	if err != nil {
@@ -88,7 +88,7 @@ func (a *Action) Xml() (string, error) {
 }
 
 // JSON returns a JSON-encoded representation of the Action.
-func (a *Action) Json() (string, error) {
+func (a *Action) JSON() (string, error) {
 
 	b, err := json.Marshal(a) // marshal returns a []byte, not string!
 	if err != nil {
