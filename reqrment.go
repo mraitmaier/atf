@@ -26,16 +26,13 @@ type Requirement struct {
 	Description string
 
 	// Project represents a project that is related to the requirement
-	*Project
+	Project
 
 	// Status represents the current status
-	Status RequirementStatus `xml:"status:attr"`
+	Status ReqStatus `xml:"status:attr"`
 
 	// Priority represents the priority (low, normal, high) of the requirement
 	Priority Priority `xml:"priority,attr"`
-
-	// Notes represents a list of notes o for the requirement (the changelog)
-	Notes []*Note `xml:"Notes>Note"`
 }
 
 // String returns a human-readable representation of the requirement.
@@ -45,9 +42,6 @@ func (r *Requirement) String() string {
 	s += fmt.Sprintf("Status: %s, Priority: %s\n", r.Status, r.Priority.String())
 	s += fmt.Sprintf("Project: %s\n", r.Project.String())
 	s += fmt.Sprintf("\n%s\n", r.Description)
-	for _, n := range r.Notes {
-		s += fmt.Sprintf("%s", n.String())
-	}
 	return s
 }
 
@@ -73,19 +67,19 @@ func (r *Requirement) JSON() (string, error) {
 
 }
 
-// RequirementStatus defines the custom requirement status type: it's basically a string but with limited set of values.
-type RequirementStatus string
+// ReqStatus defines the custom requirement status type: it's basically a string but with limited set of values.
+type ReqStatus string
 
 // ValidRequirementStatus is the list of valid requirement statuses.
-var ValidRequirementStatus = []string{"NEW", "ACKNOWLEDGED", "PENDING", "APPROVED", "REJECTED", "UNKNOWN"}
+var ValidReqStatus = []string{"NEW", "ACKNOWLEDGED", "PENDING", "APPROVED", "REJECTED", "UNKNOWN"}
 
-// String returns a human-readable representation for the RequirementStatus type.
-func (r RequirementStatus) String() string { return strings.ToUpper(string(r)) }
+// String returns a human-readable representation for the ReqStatus type.
+func (r ReqStatus) String() string { return strings.ToUpper(string(r)) }
 
 // IsValidRequirementStatus checks whether the given requirement status is valid or not.
-func IsValidRequirementStatus(s RequirementStatus) bool {
+func IsValidReqStatus(s ReqStatus) bool {
 
-	for _, status := range ValidRequirementStatus {
+	for _, status := range ValidReqStatus {
 		if strings.ToUpper(string(s)) == status {
 			return true
 		}

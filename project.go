@@ -15,7 +15,7 @@ type Project struct {
 	// Name is a name of the project
 	Name string
 
-	// Short is a short name for a project
+	// Short is a short (code) name for a project
 	Short string
 
 	// Description is a detailed description of the project
