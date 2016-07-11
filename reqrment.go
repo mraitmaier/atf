@@ -35,6 +35,18 @@ type Requirement struct {
 	Priority Priority `xml:"priority,attr"`
 }
 
+// NewRequirement creates a new  empty instance of Requirement type.
+func NewRequirement() *Requirement {
+    return &Requirement {
+        Name: "",
+        Short: "",
+        Description: "",
+        Project: *NewProject("", ""),
+        Status: "NEW",
+        Priority: "UNKNOWN",
+    }
+}
+
 // String returns a human-readable representation of the requirement.
 func (r *Requirement) String() string {
 
