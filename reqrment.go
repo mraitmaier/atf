@@ -28,23 +28,28 @@ type Requirement struct {
 	// Project represents a project that is related to the requirement
 	Project
 
+	// Labels is a list of string labels that are associated ot requirement; it gives a requirement a classification
+	// and a filtering ability
+	Labels []string
+
 	// Status represents the current status
 	Status ReqStatus `xml:"status:attr"`
 
 	// Priority represents the priority (low, normal, high) of the requirement
-	Priority Priority `xml:"priority,attr"`
+	Priority `xml:"priority,attr"`
 }
 
 // NewRequirement creates a new  empty instance of Requirement type.
 func NewRequirement() *Requirement {
-    return &Requirement {
-        Name: "",
-        Short: "",
-        Description: "",
-        Project: *NewProject("", ""),
-        Status: "NEW",
-        Priority: "UNKNOWN",
-    }
+	return &Requirement{
+		Name:        "",
+		Short:       "",
+		Description: "",
+		Project:     *NewProject("", ""),
+		Status:      ReqStatus("NEW"),
+		Priority:    Priority("UNKNOWN"),
+		Labels:      make([]string, 0),
+	}
 }
 
 // String returns a human-readable representation of the requirement.
@@ -77,6 +82,11 @@ func (r *Requirement) JSON() (string, error) {
 	}
 	return string(output), nil
 
+}
+
+// AppendLabels appends one or more labels to Requirement.
+func (r *Requirement) AppendLabel(labels ...string) {
+	r.Labels = append(r.Labels, labels...)
 }
 
 // ReqStatus defines the custom requirement status type: it's basically a string but with limited set of values.
