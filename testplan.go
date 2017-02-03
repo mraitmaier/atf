@@ -5,15 +5,14 @@ package atf
  *
  * History:
  *  1   May11 MR Initial version, limited testing
- *  2   May14 MR Updated version: XML handling simplified, added conversion to
- *               TestSet, appending test cases simplified
+ *  2   May14 MR Updated version: XML handling simplified, added conversion to TestSet, appending test cases simplified
  */
 
 import (
-	"github.com/mraitmaier/atf/utils"
 	"encoding/json"
 	"encoding/xml"
 	"fmt"
+	"github.com/mraitmaier/atf/utils"
 )
 
 // TestPlan defines a single test plan.

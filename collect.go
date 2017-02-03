@@ -20,9 +20,9 @@ package atf
  */
 
 import (
-	"github.com/mraitmaier/atf/utils"
 	"encoding/json"
 	"encoding/xml"
+	"github.com/mraitmaier/atf/utils"
 	"io"
 	"path"
 )
