@@ -14,7 +14,7 @@ import (
 	"fmt"
 )
 
-// SysUnderTest represents a system under test: this either peice of SW or HW or a system built from both HW and SW.
+// SysUnderTest represents a system under test: this either piece of SW or HW or a system built from both HW and SW.
 type SysUnderTest struct {
 
 	// Name of the SUT
@@ -31,22 +31,26 @@ type SysUnderTest struct {
 
 	// IPaddr is a SUT IP address (if needed)
 	IPaddr string `xml:"IPAddress"`
+
+    // Is SUT up and running? Visible?
+    IsUp bool `xml:"-"`
 }
 
 // CreateSUT creates a new SUT instance.
 func CreateSUT(name, systype, version, descr, ip string) *SysUnderTest {
-	return &SysUnderTest{name, systype, version, descr, ip}
+	return &SysUnderTest{name, systype, version, descr, ip, false}
 }
 
 // String returns a human-readable representation of the SUT instance.
 func (s *SysUnderTest) String() string {
 
 	txt := "SystemUnderTest:\n"
-	txt += fmt.Sprintf("   Name: %s\n", s.Name)
-	txt += fmt.Sprintf("   Type: %s\n", s.Systype)
-	txt += fmt.Sprintf("   Version: %s\n", s.Version)
-	txt += fmt.Sprintf("   IP address: %s\n", s.IPaddr)
-	txt += fmt.Sprintf("   Description:\n%s", s.Description)
+	txt += fmt.Sprintf("          Name: %s\n", s.Name)
+	txt += fmt.Sprintf("          Type: %s\n", s.Systype)
+	txt += fmt.Sprintf("       Version: %s\n", s.Version)
+	txt += fmt.Sprintf("    IP address: %s\n", s.IPaddr)
+	txt += fmt.Sprintf("   Description: \n%s\n", s.Description)
+	txt += fmt.Sprintf("         is Up? %s\n", s.IsUp)
 	return txt
 }
 
